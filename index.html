@@ -19,7 +19,7 @@
         margin: 0;
         width: 100%;
         height: 100vh;
-        font-size: 14px;
+        font-size: 15px;
       }
       
       * {
@@ -60,6 +60,12 @@
         border-color: white;
       }
       
+      textarea {
+        resize: none;
+        color: white;
+        background-color: transparent;
+      }
+      
       #goofyGif {
         cursor: not-allowed;
         position: fixed;
@@ -90,7 +96,7 @@
       
       .dayHeader, legend {
         font-weight: bold;
-        font-size: 18px;
+        font-size: 17px;
         text-align: center;
         text-shadow: 0 0 5px var(--accent-color);
       }
@@ -118,9 +124,11 @@
           color: black;
         }
         
-        input {
+        input, textarea {
           border: 0;
+          color: black;
           background-color: white;
+          resize: none;
         }
         
         *::placeholder {
@@ -163,11 +171,17 @@
     </fieldset>
     
     <table id="main">
-      <template x-for="day in DAYS">
+      <template x-for="(day, index) in DAYS">
         <tr>
           <td class="dayCell">
-            <div class="dayHeader" x-text="headerForDay(day)"></div>
+            <div class="dayHeader" x-text="headerForDay(day)" :style="index >= 5 ? 'border-bottom-style: solid;' : ''"></div>
             <table class="w100">
+              <tr>
+                <td :rowspan="3 + people?.length">
+                  <textarea :rows="3 + people?.length" style="width: 90%;" x-model="meals[day].notes"
+                            :placeholder="index === 0 ? 'Notes for the day, such as things to thaw, ingredients to buy, etc.' : null"></textarea>
+                </td>
+              </tr>
               <tr>
                 <td>🌅 Breakfast</td>
                 <td><input x-model="meals[day].breakfast"></input></td>
@@ -222,6 +236,7 @@
           
           getDefaultMeals() {
             return Object.fromEntries(DAYS.map(day => [day, {
+              "notes": null,
               "breakfast": null,
               "dinner": null,
               "lunch": Object.fromEntries(this.people.map(person => [person, null])),
