@@ -201,6 +201,7 @@
           
           clearMeals() {
             localStorage.removeItem(LS_MEALS);
+            this.meals = this.getDefaultMeals();
           },
           
           headerForDay(day) {
@@ -213,7 +214,7 @@
             const date = new Date(monday);
             date.setDate(monday.getDate() + DAYS.indexOf(day));
 
-            return day + " " + date.toLocaleDateString(DATE_LOCALE, DATE_OPTIONS);
+            return day + " (" + date.toLocaleDateString(DATE_LOCALE, DATE_OPTIONS) + ")";
           },
           
           loadLocalStorage() {
