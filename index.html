@@ -28,12 +28,18 @@
       }
 
       body {
+        max-width: 1024px;
         width: calc(100% - 40px);
-        margin: 20px;
+        padding: 20px;
+        margin-left: auto;
+        margin-right: auto;
         overflow-x: hidden;
         overflow-y: scroll;
-        background-color: white;
-        color: black;
+        color: white;
+        background: #091123;
+        background: linear-gradient(0deg,var(--accent-color) 1%, #132145 20%, #091123 50%);
+        background-repeat: no-repeat;
+        background-attachment: fixed;
       }
       
       button {
@@ -54,10 +60,27 @@
         border-color: white;
       }
       
+      #goofyGif {
+        cursor: not-allowed;
+        position: fixed;
+        top: 10px;
+        left: 10px;
+        padding: 0;
+        margin: 0;
+        border-radius: 10px;
+        box-shadow: 0 0 30px var(--accent-color);
+        outline: 5px inset var(--accent-color);
+      }
+      
+      #goofyGif img {
+        display: block;
+        max-width: 250px;
+      }
+      
       #header {
-        font-weight: bold;
         display: grid;
         grid-template-columns: auto auto;
+        margin-bottom: 20px;
       }
       
       #main {
@@ -65,12 +88,15 @@
         height: 100%;
       }
       
-      .dayHeader {
-        font-size: 18px;
+      .dayHeader, legend {
         font-weight: bold;
-        text-shadow: 0 0 5px var(--accent-color);
-        border-bottom: 3px var(--accent-color) dotted;
+        font-size: 18px;
         text-align: center;
+        text-shadow: 0 0 5px var(--accent-color);
+      }
+      
+      .dayHeader {
+        border-bottom: 3px var(--accent-color) dotted;
       }
       
       .dayCell input, .dayCell table {
@@ -86,7 +112,10 @@
         
         body {
           width: 100%;
+          padding: 0;
           margin: 0;
+          background-color: white;
+          color: black;
         }
         
         input {
@@ -112,9 +141,14 @@
       </div>
     -->
     
-    <div id="header" class="hideOnPrint">
+    <div id="goofyGif" class="hideOnPrint" @click="$el.style.display = 'none';">
+      <img :src="gifChoice" draggable="false" onerror="this.style.display='none';"></img>
+    </div>
+    
+    <fieldset id="header" class="hideOnPrint">
+      <legend>Setup <small>(hidden on Print)</small></legend>
       <div style="text-align: left;">
-        <span x-text="`Today is ${new Date().toLocaleDateString(DATE_LOCALE, DATE_OPTIONS)}`"></span>
+        <b x-text="`Today is ${new Date().toLocaleDateString(DATE_LOCALE, { month: 'long', day: 'numeric' })}`"></b>
         &nbsp;|&nbsp;
         <button @click="clearMeals()">Clear Meals</button>
       </div>
@@ -126,7 +160,7 @@
           <button @click="removePerson(person)" x-text="`❌ ${person}`"></button>
         </template>
       </div>
-    </div>
+    </fieldset>
     
     <table id="main">
       <template x-for="day in DAYS">
@@ -162,12 +196,21 @@
       const DATE_LOCALE = "en-CA";
       const DATE_OPTIONS = options = { month: 'short', day: 'numeric' };
       const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+      const GIFS = [
+        "https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExYWo4N21kOWpkcHFlY2MyNGZxY2RjeTVzMnI1YjBzdHJtNnB0bGExdCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/10xnAw9YM8IYLe/giphy.gif",
+        "https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExOXpmYzlhZ3Zlajl1Nzh3MHVtbmJoeTJlbXN1dmFzbXppaWcxM2FtbSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/I75I56Qz6TdqU/giphy.gif",
+        "https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExNDg3c3Z4MmludDVldDZ5c3NraGp4eG8wcGp4d2lkbDV1M2o2Z2loMiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/5ev3alRsskWA0/giphy.gif",
+        "https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExZnR3ZnVtajJueWljNHU3eTA0b3l6ZTRyZDJndHBoYjB5MW5mcTU0dSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/t7AI4TmE0PYI/giphy.gif",
+        "https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExY3g4M3B4NXowMXR2MnY0cDk0MmhkcW1jM2RzNnl4YzNodmgzNXR4aiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/KpeafwpslVACDwchH1/giphy.gif",
+        "https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExcGR0ajkwem9pZTcyOHM3NHJzYXc5amVsbGR4MmJrdXlnYzd3b3NidCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/LfoZkIQqdUHmM/giphy.gif",
+      ];
     
       document.addEventListener("alpine:init", () => {
         Alpine.data("state", () => ({
           people: ["All"],
           meals: {},
           newPerson: null,
+          gifChoice: GIFS[Math.floor(Math.random() * GIFS.length)],
           
           init() {
             this.meals = this.getDefaultMeals();
